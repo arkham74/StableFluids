@@ -12,7 +12,7 @@ namespace StableFluids.Marbling
 		[SerializeField] private Vector2 direction = Vector2.one;
 		[SerializeField] private Vector2 position = Vector2.one / 2;
 
-		private void LateUpdate()
+		private void Update()
 		{
 			marblingBase.BlitToColor(position, color, PointFalloff);
 			marblingBase.BlitToForceField(position, direction * PointForce, PointFalloff);

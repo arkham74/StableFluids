@@ -10,7 +10,7 @@ namespace StableFluids.Marbling
 		[SerializeField] private MarblingBase marblingBase;
 		[SerializeField] private Color color;
 
-		private void LateUpdate()
+		private void Update()
 		{
 			UpdateColorInjection();
 			UpdateForceField();
