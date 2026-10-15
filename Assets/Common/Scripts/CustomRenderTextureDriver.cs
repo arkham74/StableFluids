@@ -2,11 +2,15 @@
 
 public sealed class CustomRenderTextureDriver : MonoBehaviour
 {
-    [SerializeField] CustomRenderTexture _target = null;
+	[SerializeField] CustomRenderTexture _target = null;
 
-    void Start()
-      => _target.Initialize();
+	void Start()
+	{
+		_target.Initialize();
+	}
 
-    void Update()
-      => _target.Update();
+	// void Update()
+	// {
+	// 	_target.Update();
+	// }
 }

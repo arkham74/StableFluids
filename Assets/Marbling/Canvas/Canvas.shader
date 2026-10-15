@@ -1,56 +1,63 @@
 Shader "StableFluids/Canvas"
 {
-    Properties
-    {
-        _InjectTex("Color Injection", 2D) = "Black"{}
-        _VelocityTex("Velocity Field", 2D) = "Black"{}
-    }
+	Properties
+	{
+		_InjectTex ("Color Injection", 2D) = "Black"{}
+		_VelocityTex ("Velocity Field", 2D) = "Black"{}
+	}
 
-HLSLINCLUDE
+	HLSLINCLUDE
 
-#include "../../Common/Shaders/CustomRenderTexture.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+	#include "../../Common/Shaders/CustomRenderTexture.hlsl"
+	#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-TEXTURE2D(_InjectTex);
-SAMPLER(sampler_InjectTex);
-float4 _InjectTex_TexelSize;
+	TEXTURE2D(_InjectTex);
+	SAMPLER(sampler_InjectTex);
+	float4 _InjectTex_TexelSize;
 
-TEXTURE2D(_VelocityTex);
-SAMPLER(sampler_VelocityTex);
-float4 _VelocityTex_TexelSize;
+	TEXTURE2D(_VelocityTex);
+	SAMPLER(sampler_VelocityTex);
+	float4 _VelocityTex_TexelSize;
 
-half4 fragUpdate(CustomRenderTextureVaryings i) : SV_Target
-{
-    float2 uv = i.globalTexcoord.xy;
+	float grayscale(float3 color)
+	{
+		// Standard luminosity weights for RGB to grayscale conversion
+		return dot(color, float3(0.299f, 0.587f, 0.114f));
+	}
 
-    // Injection color sample
-    float4 c = SAMPLE_TEXTURE2D(_InjectTex, sampler_InjectTex, uv);
+	half4 fragUpdate(CustomRenderTextureVaryings i) : SV_Target
+	{
+		float2 uv = i.globalTexcoord.xy;
 
-    // Velocity field sample
-    float2 v = SAMPLE_TEXTURE2D(_VelocityTex, sampler_VelocityTex, uv).xy;
+		// Injection color sample
+		float4 c = SAMPLE_TEXTURE2D(_InjectTex, sampler_InjectTex, uv);
 
-    // Aspect ratio compensation (width-based normalization)
-    v.y *= _VelocityTex_TexelSize.y * _VelocityTex_TexelSize.z;
+		// Velocity field sample
+		float2 v = SAMPLE_TEXTURE2D(_VelocityTex, sampler_VelocityTex, uv).xy;
 
-    // Sample from advected position
-    float2 uv_prev = uv - v * unity_DeltaTime.x;
-    float4 c0 = SAMPLE_TEXTURE2D(_SelfTexture2D, sampler_SelfTexture2D, uv_prev);
+		// Aspect ratio compensation (width-based normalization)
+		v.y *= _VelocityTex_TexelSize.y * _VelocityTex_TexelSize.z;
 
-    return float4(lerp(c0.rgb, c.rgb, c.a), 1);
-}
+		// Sample from advected position
+		float2 uv_prev = uv - v * unity_DeltaTime.x;
+		float4 c0 = SAMPLE_TEXTURE2D(_SelfTexture2D, sampler_SelfTexture2D, uv_prev);
 
-ENDHLSL
+		// max(c0.a * 0.999, c.a)
+		return float4(lerp(c0.rgb * 0.99, c.rgb, c.a), 1);
+	}
 
-    SubShader
-    {
-        Cull Off ZWrite Off ZTest Always
-        Pass
-        {
-            Name "Update"
-            HLSLPROGRAM
-            #pragma vertex CustomRenderTextureVertexShader
-            #pragma fragment fragUpdate
-            ENDHLSL
-        }
-    }
+	ENDHLSL
+
+	SubShader
+	{
+		Cull Off ZWrite Off ZTest Always
+		Pass
+		{
+			Name "Update"
+			HLSLPROGRAM
+			#pragma vertex CustomRenderTextureVertexShader
+			#pragma fragment fragUpdate
+			ENDHLSL
+		}
+	}
 }
