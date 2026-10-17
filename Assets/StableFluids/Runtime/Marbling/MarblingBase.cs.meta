@@ -6,7 +6,7 @@ MonoImporter:
   defaultReferences:
   - _colorInjection: {fileID: 8400000, guid: 9f6f8ff8db5154ec3a818fdf0a35f31a, type: 2}
   - _forceField: {fileID: 8400000, guid: 50e986256d755482fb4dcb092d19f666, type: 2}
-  - _shader: {fileID: 4800000, guid: ae8ec69a42aab44e58c38501811bda46, type: 3}
+  - _material: {fileID: 2100000, guid: 9e4999028c5d4d94a988ad1d0d2a1886, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

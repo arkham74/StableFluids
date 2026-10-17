@@ -53,22 +53,22 @@
     <Analyzer Include="D:\_PROGRAMY\Unity Editor\6000.6.5f1\Editor\Data\BCLExtensions\TargetingPacks\netstandard2.1\analyzers\dotnet\roslyn4.0\cs\System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\StableFluids\FluidSimulation.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingEmitter.cs" />
     <Compile Include="Assets\Common\Scripts\FrameRateConfig.cs" />
-    <Compile Include="Assets\StableFluids\FluidUtils.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingInputHandler.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingController.cs" />
     <Compile Include="Assets\Common\Scripts\CustomRenderTextureDriver.cs" />
-    <Compile Include="Assets\Marbling\Scripts\MarblingEmitter.cs" />
-    <Compile Include="Assets\Marbling\Scripts\MarblingInputHandler.cs" />
-    <Compile Include="Assets\Marbling\Scripts\MarblingBase.cs" />
-    <Compile Include="Assets\Marbling\Scripts\MarblingController.cs" />
-    <Compile Include="Assets\Marbling\Scripts\MarblingFluidSimulator.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Simulation\FluidSimulation.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Simulation\FluidUtils.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingFluidSimulator.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\StableFluids\FluidSimulation.shader" />
+    <None Include="Assets\StableFluids\Shaders\FluidSimulation.shader" />
     <None Include="Assets\Common\UITK\AppUI.uxml" />
     <None Include="Assets\Common\Shaders\CustomRenderTexture.hlsl" />
-    <None Include="Assets\Marbling\Shaders\Marbling.shader" />
-    <None Include="Assets\Marbling\Canvas\Canvas.shader" />
+    <None Include="Assets\StableFluids\Shaders\Marbling.shader" />
+    <None Include="Assets\StableFluids\Shaders\Canvas.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
