@@ -1,40 +1,20 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace StableFluids.Marbling
 {
-	public struct MarblingCommand
-	{
-		public Color color;
-		public Vector2 position;
-		public Vector2 force;
-		public float falloff;
-
-		public MarblingCommand(Vector2 position, Color color, float falloff)
-		{
-			this.position = position;
-			this.color = color;
-			this.falloff = falloff;
-			this.force = Vector2.zero;
-		}
-
-		public MarblingCommand(Vector2 position, Vector2 force, float falloff)
-		{
-			this.position = position;
-			this.force = force;
-			this.falloff = falloff;
-			this.color = Color.clear;
-		}
-	}
-
 	public sealed class MarblingBase : MonoBehaviour
 	{
+		[SerializeField] private RenderTexture _canvas;
+		[SerializeField] private RenderTexture _velocityField;
 		[SerializeField] private RenderTexture _colorInjection;
 		[SerializeField] private RenderTexture _forceField;
 		[SerializeField] private Material _material;
 
 		private MarblingInputHandler _input;
+		private MaterialPropertyBlock _mpb;
 		private readonly List<MarblingCommand> colorList = new();
 		private readonly List<MarblingCommand> forceList = new();
 
@@ -42,77 +22,88 @@ namespace StableFluids.Marbling
 
 		private void Start()
 		{
+			_mpb = new MaterialPropertyBlock();
 			_input = new MarblingInputHandler(_colorInjection);
 			_material.SetFloat("_Aspect", (float)_forceField.width / _forceField.height);
 
 			Graphics.Blit(Texture2D.blackTexture, _colorInjection);
 			Graphics.Blit(Texture2D.blackTexture, _forceField);
+			Graphics.Blit(Texture2D.blackTexture, _canvas);
+			Graphics.Blit(Texture2D.blackTexture, _velocityField);
+
+			RenderPipelineManager.beginContextRendering += OnBeginContextRendering;
+		}
+
+		private void OnDestroy()
+		{
+			RenderPipelineManager.beginContextRendering -= OnBeginContextRendering;
 		}
 
 		private void Update()
 		{
-			colorList.Clear();
-			forceList.Clear();
 			_input.Update();
 		}
 
-		private void LateUpdate()
+		private void OnBeginContextRendering(ScriptableRenderContext context, List<Camera> list)
 		{
+			CommandBuffer cmd = CommandBufferPool.Get("Marbling Pass");
+			_mpb.Clear();
+
+			ClearForceField(cmd);
+			ClearColorInjection(cmd);
+
 			foreach (MarblingCommand command in colorList)
 			{
-				BlitToColorInternal(command);
+				BlitToColorInternal(cmd, command);
 			}
 
 			foreach (MarblingCommand command in forceList)
 			{
-				BlitToForceFieldInternal(command);
+				BlitToForceFieldInternal(cmd, command);
 			}
+
+			colorList.Clear();
+			forceList.Clear();
+			context.ExecuteCommandBuffer(cmd);
+			CommandBufferPool.Release(cmd);
 		}
 
 		internal void BlitToColor(Vector2 position, Color color, float falloff)
 		{
-			BlitToColor(new(position, color, falloff));
+			colorList.Add(new(position, color, falloff));
 		}
 
 		internal void BlitToForceField(Vector2 position, Vector2 force, float falloff)
 		{
-			BlitToForceField(new(position, force, falloff));
+			forceList.Add(new(position, force, falloff));
 		}
 
-		public void BlitToColor(MarblingCommand command)
+		private void BlitToColorInternal(CommandBuffer cmd, MarblingCommand command)
 		{
-			colorList.Add(command);
+			_mpb.SetColor("_Color", command.color);
+			_mpb.SetVector("_Origin", command.position);
+			_mpb.SetFloat("_Falloff", command.falloff);
+
+			RTUtil.Blit(cmd, null, _colorInjection, _material, 0, _mpb);
 		}
 
-		public void BlitToForceField(MarblingCommand command)
+		private void BlitToForceFieldInternal(CommandBuffer cmd, MarblingCommand command)
 		{
-			forceList.Add(command);
+			_mpb.SetVector("_Origin", command.position);
+			_mpb.SetFloat("_Falloff", command.falloff);
+			_mpb.SetVector("_Force", command.force);
+
+			RTUtil.Blit(cmd, null, _forceField, _material, 1, _mpb);
 		}
 
-		private void BlitToColorInternal(MarblingCommand command)
+		internal void ClearForceField(CommandBuffer cmd)
 		{
-			_material.SetColor("_Color", command.color);
-			_material.SetVector("_Origin", command.position);
-			_material.SetFloat("_Falloff", command.falloff);
-			Graphics.Blit(null, _colorInjection, _material, 0);
+			cmd.Blit(Texture2D.blackTexture, _forceField);
 		}
 
-		private void BlitToForceFieldInternal(MarblingCommand command)
+		internal void ClearColorInjection(CommandBuffer cmd)
 		{
-			_material.SetVector("_Origin", command.position);
-			_material.SetFloat("_Falloff", command.falloff);
-			_material.SetVector("_Force", command.force);
-			Graphics.Blit(null, _forceField, _material, 1);
-		}
-
-		internal void ClearForceField()
-		{
-			Graphics.Blit(Texture2D.blackTexture, _forceField);
-		}
-
-		internal void ClearColorInjection()
-		{
-			Graphics.Blit(Texture2D.blackTexture, _colorInjection);
+			cmd.Blit(Texture2D.blackTexture, _colorInjection);
 		}
 	}
 }

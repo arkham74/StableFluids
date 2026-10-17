@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingEmitter.cs" />
     <Compile Include="Assets\Common\Scripts\FrameRateConfig.cs" />
+    <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingCommand.cs" />
     <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingInputHandler.cs" />
     <Compile Include="Assets\StableFluids\Runtime\Marbling\MarblingController.cs" />
     <Compile Include="Assets\Common\Scripts\CustomRenderTextureDriver.cs" />

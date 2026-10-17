@@ -55,6 +55,7 @@ Shader "Hidden/StableFluids/Marbling"
 			// Pass 0: Color Injection
 			Pass
 			{
+				Name "Color Injection"
 				HLSLPROGRAM
 				#pragma vertex VertexProcedural
 				#pragma fragment FragmentInjection
@@ -64,6 +65,7 @@ Shader "Hidden/StableFluids/Marbling"
 			// Pass 1: Force Application
 			Pass
 			{
+				Name "Force Injection"
 				HLSLPROGRAM
 				#pragma vertex VertexProcedural
 				#pragma fragment FragmentForce

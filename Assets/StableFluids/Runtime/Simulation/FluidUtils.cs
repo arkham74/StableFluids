@@ -1,11 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 
 namespace StableFluids
 {
-
-	static class RTUtil
+	public static class RTUtil
 	{
 		public static RenderTexture Allocate(int width, int height, RenderTextureFormat format)
 		{
@@ -39,6 +39,15 @@ namespace StableFluids
 			RenderTextureDescriptor descriptor = source.descriptor;
 			descriptor.graphicsFormat = SystemInfo.GetCompatibleFormat(descriptor.graphicsFormat, GraphicsFormatUsage.Render);
 			return RenderTexture.GetTemporary(descriptor);
+		}
+
+		public static void Blit(CommandBuffer cmd, RenderTexture src, RenderTexture dst, Material material, int shaderPass, MaterialPropertyBlock mpb)
+		{
+			if (src && mpb != null)
+				mpb.SetTexture(ShaderIDs.MainTex, src);
+
+			cmd.SetRenderTarget(dst);
+			cmd.DrawProcedural(Matrix4x4.identity, material, shaderPass, MeshTopology.Triangles, 3, 1, mpb);
 		}
 	}
 
