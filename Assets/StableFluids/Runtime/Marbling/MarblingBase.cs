@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static UnityEngine.GraphicsBuffer;
 
 namespace StableFluids.Marbling
 {
@@ -15,6 +17,10 @@ namespace StableFluids.Marbling
 
 		private MarblingInputHandler _input;
 		private MaterialPropertyBlock _mpb;
+
+		private GraphicsBuffer _colorsBuffer;
+		private GraphicsBuffer _forceBuffer;
+
 		private readonly List<MarblingCommand> colorList = new();
 		private readonly List<MarblingCommand> forceList = new();
 
@@ -24,6 +30,8 @@ namespace StableFluids.Marbling
 		{
 			_mpb = new MaterialPropertyBlock();
 			_input = new MarblingInputHandler(_colorInjection);
+			_colorsBuffer = new GraphicsBuffer(Target.Structured, UsageFlags.LockBufferForWrite, 1000, Marshal.SizeOf<MarblingCommand>());
+			_forceBuffer = new GraphicsBuffer(Target.Structured, UsageFlags.LockBufferForWrite, 1000, Marshal.SizeOf<MarblingCommand>());
 			_material.SetFloat("_Aspect", (float)_forceField.width / _forceField.height);
 
 			Graphics.Blit(Texture2D.blackTexture, _colorInjection);
@@ -37,6 +45,12 @@ namespace StableFluids.Marbling
 		private void OnDestroy()
 		{
 			RenderPipelineManager.beginContextRendering -= OnBeginContextRendering;
+
+			_colorsBuffer?.Dispose();
+			_colorsBuffer = null;
+
+			_forceBuffer?.Dispose();
+			_forceBuffer = null;
 		}
 
 		private void Update()
@@ -52,20 +66,31 @@ namespace StableFluids.Marbling
 			ClearForceField(cmd);
 			ClearColorInjection(cmd);
 
-			foreach (MarblingCommand command in colorList)
-			{
-				BlitToColorInternal(cmd, command);
-			}
-
-			foreach (MarblingCommand command in forceList)
-			{
-				BlitToForceFieldInternal(cmd, command);
-			}
+			BlitColorInjection(cmd);
+			BlitForceField(cmd);
 
 			colorList.Clear();
 			forceList.Clear();
 			context.ExecuteCommandBuffer(cmd);
 			CommandBufferPool.Release(cmd);
+		}
+
+		private void BlitColorInjection(CommandBuffer cmd)
+		{
+			// _commandsBuffer.SetData(colorList);
+			_mpb.SetBuffer("_CommandsBuffer", _colorsBuffer);
+			_mpb.SetInteger("_CommandsCount", colorList.Count);
+			cmd.SetBufferData(_colorsBuffer, colorList);
+			RTUtil.Blit(cmd, null, _colorInjection, _material, 0, _mpb);
+		}
+
+		private void BlitForceField(CommandBuffer cmd)
+		{
+			// _commandsBuffer.SetData(forceList);
+			_mpb.SetBuffer("_CommandsBuffer", _forceBuffer);
+			_mpb.SetInteger("_CommandsCount", forceList.Count);
+			cmd.SetBufferData(_forceBuffer, forceList);
+			RTUtil.Blit(cmd, null, _forceField, _material, 1, _mpb);
 		}
 
 		internal void BlitToColor(Vector2 position, Color color, float falloff)
@@ -76,24 +101,6 @@ namespace StableFluids.Marbling
 		internal void BlitToForceField(Vector2 position, Vector2 force, float falloff)
 		{
 			forceList.Add(new(position, force, falloff));
-		}
-
-		private void BlitToColorInternal(CommandBuffer cmd, MarblingCommand command)
-		{
-			_mpb.SetColor("_Color", command.color);
-			_mpb.SetVector("_Origin", command.position);
-			_mpb.SetFloat("_Falloff", command.falloff);
-
-			RTUtil.Blit(cmd, null, _colorInjection, _material, 0, _mpb);
-		}
-
-		private void BlitToForceFieldInternal(CommandBuffer cmd, MarblingCommand command)
-		{
-			_mpb.SetVector("_Origin", command.position);
-			_mpb.SetFloat("_Falloff", command.falloff);
-			_mpb.SetVector("_Force", command.force);
-
-			RTUtil.Blit(cmd, null, _forceField, _material, 1, _mpb);
 		}
 
 		internal void ClearForceField(CommandBuffer cmd)

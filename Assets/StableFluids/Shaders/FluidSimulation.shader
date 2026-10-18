@@ -49,8 +49,7 @@ Shader "Hidden/StableFluids/FluidSimulation"
 	}
 
 	// Pass 0: Apply Force Field
-	half4 FragmentApplyForce(float4 positionCS : SV_POSITION,
-	float2 uv : TEXCOORD0) : SV_Target
+	half4 FragmentApplyForce(float4 positionCS : SV_POSITION,	float2 uv : TEXCOORD0) : SV_Target
 	{
 		float2 velocity = _MainTex[PixelCoord(uv)].xy;
 		float2 force = _ForceField[PixelCoord(uv)].xy;
@@ -58,8 +57,7 @@ Shader "Hidden/StableFluids/FluidSimulation"
 	}
 
 	// Pass 1: Velocity Advection
-	half4 FragmentAdvect(float4 positionCS : SV_POSITION,
-	float2 uv : TEXCOORD0) : SV_Target
+	half4 FragmentAdvect(float4 positionCS : SV_POSITION,	float2 uv : TEXCOORD0) : SV_Target
 	{
 		float2 vel = _MainTex[PixelCoord(uv)].xy;
 		vel.y *= (float)_TexWidth / _TexHeight;
@@ -71,8 +69,7 @@ Shader "Hidden/StableFluids/FluidSimulation"
 	}
 
 	// Pass 2: Projection setup
-	half4 FragmentPSetup(float4 positionCS : SV_POSITION,
-	float2 uv : TEXCOORD0) : SV_Target
+	half4 FragmentPSetup(float4 positionCS : SV_POSITION,	float2 uv : TEXCOORD0) : SV_Target
 	{
 		int2 ip = PixelCoord(uv);
 
@@ -92,8 +89,7 @@ Shader "Hidden/StableFluids/FluidSimulation"
 	}
 
 	// Pass 3: Jacobi (scalar)
-	half4 FragmentJacobi1(float4 positionCS : SV_POSITION,
-	float2 uv : TEXCOORD0) : SV_Target
+	half4 FragmentJacobi1(float4 positionCS : SV_POSITION,	float2 uv : TEXCOORD0) : SV_Target
 	{
 		int2 ip = PixelCoord(uv);
 
@@ -108,15 +104,13 @@ Shader "Hidden/StableFluids/FluidSimulation"
 		float xu = _X[pU].x;
 
 		float b = _B[ip].x;
-
 		float x = (xl + xr + xd + xu + _Alpha * b) / _Beta;
 
 		return half4(x, 0, 0, 1);
 	}
 
 	// Pass 4: Jacobi (vector)
-	half4 FragmentJacobi2(float4 positionCS : SV_POSITION,
-	float2 uv : TEXCOORD0) : SV_Target
+	half4 FragmentJacobi2(float4 positionCS : SV_POSITION, float2 uv : TEXCOORD0) : SV_Target
 	{
 		int2 ip = PixelCoord(uv);
 
@@ -131,15 +125,13 @@ Shader "Hidden/StableFluids/FluidSimulation"
 		float2 xu = _X[pU].xy;
 
 		float2 b = _B[ip].xy;
-
 		float2 x = (xl + xr + xd + xu + _Alpha * b) / _Beta;
 
 		return half4(x, 0, 1);
 	}
 
 	// Pass 5: Projection finish
-	half4 FragmentPFinish(float4 positionCS : SV_POSITION,
-	float2 uv : TEXCOORD0) : SV_Target
+	half4 FragmentPFinish(float4 positionCS : SV_POSITION, float2 uv : TEXCOORD0) : SV_Target
 	{
 		int2 ip = PixelCoord(uv);
 		int W = _TexWidth, H = _TexHeight;
@@ -155,7 +147,6 @@ Shader "Hidden/StableFluids/FluidSimulation"
 		float p4 = _P[pU].x;
 
 		float2 w = _W[ip].xy;
-
 		float2 u = w - float2(p2 - p1, p4 - p3) * (float)W * 0.5;
 
 		bool left   = ip.x == 0;

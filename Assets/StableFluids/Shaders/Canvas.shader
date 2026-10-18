@@ -43,7 +43,7 @@ Shader "StableFluids/Canvas"
 		float4 c0 = SAMPLE_TEXTURE2D(_SelfTexture2D, sampler_SelfTexture2D, uv_prev);
 
 		// max(c0.a * 0.999, c.a)
-		return float4(lerp(c0.rgb * 0.99, c.rgb, c.a), 1);
+		return float4(lerp(c0.rgb * 0.999, c.rgb, c.a), 1);
 	}
 
 	ENDHLSL
