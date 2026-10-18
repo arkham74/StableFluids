@@ -67,7 +67,7 @@
   <ItemGroup>
     <None Include="Assets\StableFluids\Shaders\FluidSimulation.shader" />
     <None Include="Assets\Common\UITK\AppUI.uxml" />
-    <None Include="Assets\Common\Shaders\CustomRenderTexture.hlsl" />
+    <None Include="Assets\StableFluids\Shaders\CustomRenderTexture.hlsl" />
     <None Include="Assets\StableFluids\Shaders\Marbling.shader" />
     <None Include="Assets\StableFluids\Shaders\Canvas.shader" />
   </ItemGroup>
