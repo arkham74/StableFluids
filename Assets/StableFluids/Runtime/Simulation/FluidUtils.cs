@@ -7,6 +7,15 @@ namespace StableFluids
 {
 	public static class RTUtil
 	{
+		public static Vector2 ScreenToNormalizedPosition(Vector2 screenPos, float targetAspectRatio = 16 / 9f)
+		{
+			// Convert screen position to normalized coordinates with aspect ratio correction
+			float screenAspect = (float)Screen.width / Screen.height;
+			Vector2 offset = screenPos - new Vector2(Screen.width, Screen.height) / 2;
+			float width = Screen.height * Mathf.Min(targetAspectRatio, screenAspect);
+			return offset / width;
+		}
+
 		public static RenderTexture Allocate(int width, int height, RenderTextureFormat format)
 		{
 			RenderTexture rt = new RenderTexture(width, height, 0, format);

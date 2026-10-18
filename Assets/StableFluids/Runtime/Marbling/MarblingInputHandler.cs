@@ -136,11 +136,7 @@ namespace StableFluids.Marbling
 
 		private Vector2 GetNormalizedInputPosition(Vector2 screenPos)
 		{
-			// Convert screen position to normalized coordinates with aspect ratio correction
-			float screenAspect = (float)Screen.width / Screen.height;
-			Vector2 offset = screenPos - new Vector2(Screen.width, Screen.height) / 2;
-			float width = Screen.height * Mathf.Min(_targetAspectRatio, screenAspect);
-			return offset / width;
+			return RTUtil.ScreenToNormalizedPosition(screenPos, _targetAspectRatio);
 		}
 	}
 }

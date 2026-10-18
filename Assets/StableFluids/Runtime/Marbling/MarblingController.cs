@@ -26,10 +26,6 @@ namespace StableFluids.Marbling
 			{
 				marblingBase.BlitToColor(marblingBase.Input.Position, color, PointFalloff);
 			}
-			// else
-			// {
-			// 	marblingBase.ClearColorInjection();
-			// }
 		}
 
 		private void UpdateForceField()
@@ -38,10 +34,6 @@ namespace StableFluids.Marbling
 			{
 				marblingBase.BlitToForceField(marblingBase.Input.Position, marblingBase.Input.Velocity * PointForce, PointFalloff);
 			}
-			// else
-			// {
-			// 	marblingBase.ClearForceField();
-			// }
 		}
 	}
 }
